@@ -119,6 +119,16 @@ func (ReadConfig) Read() (QueueWorkerConfig, error) {
 		}
 	}
 
+	if value, exists := os.LookupEnv("max_inflight"); exists {
+		val, err := strconv.Atoi(value)
+
+		if err != nil {
+			log.Println("converting max_inflight to int error:", err)
+		} else {
+			cfg.MaxInflight = val
+		}
+	}
+
 	return cfg, nil
 }
 
