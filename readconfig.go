@@ -18,8 +18,9 @@ const DefaultReconnectDelay = time.Second * 2
 
 func (ReadConfig) Read() (QueueWorkerConfig, error) {
 	cfg := QueueWorkerConfig{
-		AckWait:     time.Second * 30,
-		MaxInflight: 1,
+		AckWait:                         time.Second * 30,
+		MaxInflight:                     1,
+		DisableTlsCertificateValidation: false,
 	}
 
 	if val, exists := os.LookupEnv("faas_nats_address"); exists {
@@ -129,6 +130,14 @@ func (ReadConfig) Read() (QueueWorkerConfig, error) {
 		}
 	}
 
+	if val, exists := os.LookupEnv("disable_tls_certificate_validation"); exists {
+		if val == "1" || val == "true" {
+			cfg.DisableTlsCertificateValidation = true
+		} else {
+			cfg.DisableTlsCertificateValidation = false
+		}
+	}
+
 	return cfg, nil
 }
 
@@ -148,6 +157,8 @@ type QueueWorkerConfig struct {
 
 	DebugPrintBody bool
 	WriteDebug     bool
+
+	DisableTlsCertificateValidation bool
 }
 
 func (q QueueWorkerConfig) GatewayAddressURL() string {

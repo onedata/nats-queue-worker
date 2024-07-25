@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -41,7 +42,7 @@ func main() {
 
 	log.Printf("[Warning] NATS Streaming is deprecated and will be removed in a future release. See: https://www.openfaas.com/blog/jetstream-for-openfaas/")
 
-	client := makeClient()
+	client := makeClient(&config)
 
 	counter := uint64(0)
 	messageHandler := func(msg *stan.Msg) {
@@ -197,9 +198,10 @@ func main() {
 
 // makeClient constructs a HTTP client with keep-alive turned
 // off and a dial-timeout of 30 seconds.
-func makeClient() http.Client {
+func makeClient(config *QueueWorkerConfig) http.Client {
 	tr := &http.Transport{
-		Proxy: http.ProxyFromEnvironment,
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: config.DisableTlsCertificateValidation},
+		Proxy:           http.ProxyFromEnvironment,
 		DialContext: (&net.Dialer{
 			Timeout:   30 * time.Second,
 			KeepAlive: 0,
