@@ -1,5 +1,5 @@
 REPO=onedata/openfaas-queue-worker
-TAG=0.13.0
+TAG=0.13.1
 
 
 .PHONY: build publish
